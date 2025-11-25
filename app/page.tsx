@@ -196,7 +196,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-linear-to-br from-primary/5 via-background to-accent/5">
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[linear-linear(to_right,#8080800a_1px,transparent_1px),linear-linear(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px]" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-22">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-20">
           <div className="text-center space-y-8">
             <div className="inline-flex items-center justify-center p-2 rounded-full mb-4 animate-fade-in">
               <div className="h-18 w-18 rounded-full flex items-center justify-center shadow-lg shadow-primary/25">
