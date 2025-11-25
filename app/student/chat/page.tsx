@@ -9,6 +9,9 @@ import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Send, Sparkles, User } from "lucide-react"
 import { useRole } from "@/contexts/role-context"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import Image from "next/image"
 
 interface Message {
   role: "user" | "assistant"
@@ -16,7 +19,7 @@ interface Message {
 }
 
 export default function ChatbotPage() {
-  const { userId } = useRole()
+  const { role, userId } = useRole()
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -42,27 +45,51 @@ export default function ChatbotPage() {
 
     const userMessage = input.trim()
     setInput("")
+    
     setMessages((prev) => [...prev, { role: "user", content: userMessage }])
     setLoading(true)
 
-    setTimeout(() => {
-      const responses = [
-        "That's a great question! Based on your role and access level, I can provide detailed insights about school operations.",
-        "I can help you with that. Would you like me to show you relevant statistics or guide you to the appropriate section?",
-        "Let me assist you with your request. I have access to your user context and can provide personalized recommendations.",
-      ]
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)]
-      setMessages((prev) => [...prev, { role: "assistant", content: randomResponse }])
+    try {
+      const response = await fetch("http://localhost:8000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          user_id: userId, 
+          role: role, 
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok")
+      }
+
+      const data = await response.json()
+
+      setMessages((prev) => [
+        ...prev, 
+        { role: "assistant", content: data.reply }
+      ])
+
+    } catch (error) {
+      console.error("Error:", error)
+      setMessages((prev) => [
+        ...prev, 
+        { role: "assistant", content: "Sorry, I'm having trouble connecting to the school database right now." }
+      ])
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-2xl bg-linear-to-br from-primary to-primary/80 flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 rounded-full bg-linear-to-br from-primary/50 to-primary/10 flex items-center justify-center">
+            <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="h-5 w-5" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">AI Assistant</h1>
@@ -78,7 +105,7 @@ export default function ChatbotPage() {
               {message.role === "assistant" && (
                 <Avatar className="h-10 w-10 border border-border/50 shrink-0">
                   <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/5 text-primary">
-                    <Sparkles className="h-5 w-5" />
+                    <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="w-5" />
                   </AvatarFallback>
                 </Avatar>
               )}
@@ -89,7 +116,15 @@ export default function ChatbotPage() {
                     : "bg-muted/50 border border-border/50 text-foreground"
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                {message.role === "user" ? (
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                ) : (
+                  <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
               </div>
               {message.role === "user" && (
                 <Avatar className="h-10 w-10 border border-border/50 shrink-0">
@@ -104,7 +139,7 @@ export default function ChatbotPage() {
             <div className="flex gap-4">
               <Avatar className="h-10 w-10 border border-border/50 shrink-0">
                 <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/5 text-primary">
-                  <Sparkles className="h-5 w-5" />
+                  <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="h-5 w-5" />
                 </AvatarFallback>
               </Avatar>
               <div className="bg-muted/50 border border-border/50 rounded-2xl px-4 py-3">
