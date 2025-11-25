@@ -71,7 +71,7 @@ export default function HomePage() {
           const mapped =
             data?.map((t) => ({
               value: t.user_id || t.id,
-              label: `${t.first_name} ${t.last_name} (${t.staff_code}) - ${t.school?.name || "Unknown School"}`,
+              label: `${t.first_name} ${t.last_name}`,
             })) || []
 
           setUserOptions([{ value: "any", label: "any" }, ...mapped])
@@ -87,9 +87,7 @@ export default function HomePage() {
           const mapped =
             data?.map((s) => ({
               value: s.user_id || s.id,
-              label: `${s.first_name} ${s.last_name} (${s.admission_number}) - ${
-                s.current_class?.name || "N/A"
-              } - ${s.school?.name || "Unknown"}`,
+              label: `${s.first_name} ${s.last_name}`,
             })) || []
 
           setUserOptions([{ value: "any", label: "any" }, ...mapped])
