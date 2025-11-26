@@ -137,7 +137,7 @@ export async function getAttendanceByDate(date: string, classId?: string) {
     .eq("attendance_date", date)
 
   if (classId) {
-    query = query.eq("students.current_class_id", classId)
+    query = query.eq("student.current_class_id", classId)
   }
 
   const { data, error } = await query
