@@ -132,16 +132,15 @@ export async function getAttendanceByDate(date: string, classId?: string) {
     .from("attendance")
     .select(`
       *,
-      student:students(first_name, last_name, roll_number)
+      student:students(first_name, last_name, roll_number, current_class_id)
     `)
     .eq("attendance_date", date)
 
-  if (classId) {
-    query = query.eq("student.current_class_id", classId)
-  }
-
   const { data, error } = await query
   if (error) throw error
+    if (classId) {
+    return data.filter((a) => a.student?.current_class_id === classId)
+  }
   return data
 }
 
