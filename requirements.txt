@@ -7,3 +7,4 @@ psycopg2
 pydantic
 agno
 google-generativeai
+google-genai
