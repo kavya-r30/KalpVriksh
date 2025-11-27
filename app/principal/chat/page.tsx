@@ -5,9 +5,7 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Card } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Send, Sparkles, User } from "lucide-react"
+import { ArrowUp } from "lucide-react"
 import { useRole } from "@/contexts/role-context"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -20,13 +18,7 @@ interface Message {
 
 export default function ChatbotPage() {
   const { role, userId } = useRole()
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content:
-        "Hello! I'm your AI assistant. I can help you with school management tasks, answer questions about students, teachers, and provide insights. How can I assist you today?",
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -45,7 +37,7 @@ export default function ChatbotPage() {
 
     const userMessage = input.trim()
     setInput("")
-    
+
     setMessages((prev) => [...prev, { role: "user", content: userMessage }])
     setLoading(true)
 
@@ -57,8 +49,8 @@ export default function ChatbotPage() {
         },
         body: JSON.stringify({
           message: userMessage,
-          user_id: userId, 
-          role: role, 
+          user_id: userId,
+          role: role,
         }),
       })
 
@@ -68,120 +60,160 @@ export default function ChatbotPage() {
 
       const data = await response.json()
 
-      setMessages((prev) => [
-        ...prev, 
-        { role: "assistant", content: data.reply }
-      ])
-
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }])
     } catch (error) {
       console.error("Error:", error)
       setMessages((prev) => [
-        ...prev, 
-        { role: "assistant", content: "Sorry, I'm having trouble connecting to the school database right now." }
+        ...prev,
+        { role: "assistant", content: "Sorry, I'm having trouble connecting to the school database right now." },
       ])
     } finally {
       setLoading(false)
     }
   }
 
-  return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col">
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-full bg-linear-to-br from-primary/50 to-primary/10 flex items-center justify-center">
-            <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="h-5 w-5" />
+  if (messages.length === 0) {
+    return (
+      <div className="h-[calc(100dvh-8rem)] flex flex-col bg-background">
+        <div className="flex-1 flex flex-col items-center justify-center px-4">
+          <div className="mb-8 flex flex-col items-center">
+            <div className="h-16 w-16 rounded-full bg-foreground/5 flex items-center justify-center mb-6">
+              <Image src={"../ai.svg"} width={32} height={32} alt="AI" className="h-8 w-8" />
+            </div>
+            <h1 className="text-2xl font-medium text-foreground mb-2">How can I help you today?</h1>
+            <p className="text-muted-foreground text-center max-w-md">
+              I can help you with school management tasks, answer questions about students, teachers, and provide
+              insights.
+            </p>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">AI Assistant</h1>
-            <p className="text-sm text-muted-foreground">Ask me anything about school management</p>
+
+          <div className="flex flex-wrap gap-2 justify-center max-w-2xl mb-8">
+            {[
+              "Show overall school attendance today",
+              "Generate fee collection summary",
+              "List all the teachers with their subjects",
+              "Show performance summary of Class 10"
+            ].map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => {
+                  setInput(suggestion)
+                }}
+                className="px-4 py-2.5 rounded-full border border-border bg-background hover:bg-muted/50 text-sm text-foreground transition-colors"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+
+          <div className="w-full max-w-2xl">
+            <form onSubmit={handleSubmit} className="relative">
+              <div className="relative rounded-2xl border border-border bg-muted/30 focus-within:border-foreground/20 focus-within:bg-muted/50 transition-all">
+                <Textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Message AI Assistant..."
+                  className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent px-4 py-3.5 pr-14 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSubmit(e)
+                    }
+                  }}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!input.trim() || loading}
+                  className="absolute right-2 bottom-2 h-9 w-9 rounded-lg bg-foreground text-background hover:bg-foreground/90 disabled:opacity-30 disabled:bg-muted-foreground transition-all"
+                >
+                  <ArrowUp className="h-5 w-5" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground/60 mt-2 text-center">
+                AI can make mistakes. Consider checking important information.
+              </p>
+            </form>
           </div>
         </div>
       </div>
+    )
+  }
 
-      <Card className="flex-1 flex flex-col overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+  return (
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-background">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.map((message, index) => (
-            <div key={index} className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              {message.role === "assistant" && (
-                <Avatar className="h-10 w-10 border border-border/50 shrink-0">
-                  <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/5 text-primary">
-                    <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="w-5" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div
-                className={`max-w-[70%] rounded-2xl px-4 py-3 ${
-                  message.role === "user"
-                    ? "bg-linear-to-br from-primary to-primary/80 text-primary-foreground"
-                    : "bg-muted/50 border border-border/50 text-foreground"
-                }`}
-              >
-                {message.role === "user" ? (
-                  <p className="text-sm leading-relaxed">{message.content}</p>
-                ) : (
-                  <div className="text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {message.content}
-                    </ReactMarkdown>
+            <div key={index} className={`mb-6 ${message.role === "user" ? "flex justify-end" : ""}`}>
+              {message.role === "assistant" ? (
+                <div className="flex gap-4">
+                  <div className="shrink-0 h-8 w-8 rounded-full bg-foreground/5 flex items-center justify-center">
+                    <Image src={"../ai.svg"} width={18} height={18} alt="AI" className="h-[18px] w-[18px]" />
                   </div>
-                )}
-              </div>
-              {message.role === "user" && (
-                <Avatar className="h-10 w-10 border border-border/50 shrink-0">
-                  <AvatarFallback className="bg-linear-to-br from-secondary/50 to-secondary/20 text-secondary-foreground">
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
+                  <div className="flex-1 pt-1">
+                    <div className="text-sm leading-relaxed prose prose-neutral dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-li:my-0.5 prose-pre:bg-muted prose-pre:border prose-pre:border-border">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="max-w-[85%] bg-muted rounded-2xl px-4 py-3">
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                </div>
               )}
             </div>
           ))}
+
           {loading && (
-            <div className="flex gap-4">
-              <Avatar className="h-10 w-10 border border-border/50 shrink-0">
-                <AvatarFallback className="bg-linear-to-br from-primary/20 to-primary/5 text-primary">
-                  <Image src={'../ai.svg'} width={10} height={10} alt="AI" className="w-5" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-muted/50 border border-border/50 rounded-2xl px-4 py-3">
+            <div className="mb-6 flex gap-4">
+              <div className="shrink-0 h-8 w-8 rounded-full bg-foreground/5 flex items-center justify-center">
+                <Image src={"../ai.svg"} width={18} height={18} alt="AI" className="h-[18px] w-[18px]" />
+              </div>
+              <div className="flex-1 pt-2">
                 <div className="flex gap-1">
-                  <div className="h-2 w-2 bg-muted-foreground/50 rounded-full animate-bounce" />
-                  <div className="h-2 w-2 bg-muted-foreground/50 rounded-full animate-bounce delay-100" />
-                  <div className="h-2 w-2 bg-muted-foreground/50 rounded-full animate-bounce delay-200" />
+                  <span className="h-2 w-2 bg-foreground/30 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <span className="h-2 w-2 bg-foreground/30 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <span className="h-2 w-2 bg-foreground/30 rounded-full animate-bounce" />
                 </div>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="p-4 border-t border-border/50 bg-background/50">
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask me anything..."
-              className="min-h-[60px] max-h-[120px] resize-none rounded-2xl border-border/50 bg-background/50"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSubmit(e)
-                }
-              }}
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={!input.trim() || loading}
-              className="h-[60px] w-[60px] rounded-2xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            User ID: {userId} • Press Enter to send, Shift+Enter for new line
-          </p>
-        </form>
-      </Card>
+      <div className="border-t border-border/50 bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="relative rounded-2xl border border-border bg-muted/30 focus-within:border-foreground/20 focus-within:bg-muted/50 transition-all">
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Message AI Assistant..."
+                className="min-h-[52px] max-h-[200px] resize-none border-0 bg-transparent px-4 py-3.5 pr-14 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault()
+                    handleSubmit(e)
+                  }
+                }}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!input.trim() || loading}
+                className="absolute right-2 bottom-2 h-9 w-9 rounded-lg bg-foreground text-background hover:bg-foreground/90 disabled:opacity-30 disabled:bg-muted-foreground transition-all"
+              >
+                <ArrowUp className="h-5 w-5" />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground/60 mt-2 text-center">
+              AI can make mistakes. Consider checking important information.
+            </p>
+          </form>
+        </div>
+      </div>
     </div>
   )
 }

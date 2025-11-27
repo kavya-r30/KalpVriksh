@@ -73,6 +73,10 @@ def execute_write_query(query: str) -> str:
         return f"WRITE ERROR: {str(e)}"
 
 def get_table_schema(table_name: str) -> str:
+    """
+    Returns the columns and data types of a specific table.
+    Use this if you are unsure about a column name.
+    """
     try:
         inspector = inspect(engine)
         columns = inspector.get_columns(table_name)
@@ -123,7 +127,8 @@ def get_role_instructions(user_id: str, role: str) -> list:
         "1. **Think First**: precise SQL is better than guessing. If unsure of a column, use `get_table_schema`.",
         "2. **Gather Context**: If a user asks 'How am I doing?', don't just check marks. Check attendance AND marks.",
         "3. **Execute**: ALWAYS use the `run_sql_query` tool. Do not hallucinate data.",
-        "4. **Format**: Present financial data with currency symbols and dates in readable formats."
+        "4. **Format**: Present financial data with currency symbols and dates in readable formats.",
+        "5. ***Format*: After executing a tool, ALWAYS interpret the result and produce a natural-language summary."
 
         "### TOOL USAGE STRATEGY:",
         "1. **READING**: For questions ('Who is...', 'List all...'), use `run_sql_query`.",
