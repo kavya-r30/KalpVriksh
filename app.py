@@ -23,6 +23,9 @@ DB_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DB_URL)
 
+with open("schema.json", "r") as f:
+    DATABASE_SCHEMA = json.load(f)
+
 class ChatRequest(BaseModel):
     message: str
     user_id: str
@@ -86,6 +89,8 @@ def get_table_schema(table_name: str) -> str:
         return f"Error fetching schema: {e}"
 
 def get_role_instructions(user_id: str, role: str) -> list:    
+    schema_text = json.dumps(DATABASE_SCHEMA, indent=2)
+    
     common_instructions = [
         "You are 'SchoolBot', a helpful, professional, and polite school administrator assistant connected to a Supabase PostgreSQL database.",
         f"CURRENT USER CONTEXT: Role='{role}', UserID='{user_id}'",
@@ -122,18 +127,25 @@ def get_role_instructions(user_id: str, role: str) -> list:
         "   - `student_skills` & `competitions`: Non-academic achievements.",
         "   - `certificates`: Official docs issued like Bonafide/Character certs.",
         "   - `transfer_requests`: Logic for students leaving the school (TC).",
+        schema_text,
         
         "### EXECUTION STRATEGY:",
         "1. **Think First**: precise SQL is better than guessing. If unsure of a column, use `get_table_schema`.",
         "2. **Gather Context**: If a user asks 'How am I doing?', don't just check marks. Check attendance AND marks.",
         "3. **Execute**: ALWAYS use the `run_sql_query` tool. Do not hallucinate data.",
-        "4. **Format**: Present financial data with currency symbols and dates in readable formats.",
-        "5. ***Format*: After executing a tool, ALWAYS interpret the result and produce a natural-language summary."
+        "4. **Format**: Present financial data with currency symbols and dates in readable formats",
+        "5. **Format**: Rewrite the incoming text into a polished, detailed, friendly, easy-to-read school assistant response.",
 
         "### TOOL USAGE STRATEGY:",
         "1. **READING**: For questions ('Who is...', 'List all...'), use `run_sql_query`.",
         "2. **WRITING**: For actions ('Mark absent', 'Add student'), use `execute_write_query`.",
         "3. **VERIFY**: Before writing, always checking schemas or existing IDs using `run_sql_query` is smart.",
+        
+        "### RESPONSE STRATEGY:",
+        "1. **Make sure the response is polished, detailed, friendly, easy-to-read school assistant response.**"
+        "2. Maintain a warm, professional tone.",
+        "3. Use bullets, headings, or short paragraphs when helpful.",
+        "4. Never reveal reasoning or chain-of-thought.",
     ]
 
     
@@ -222,7 +234,7 @@ if __name__ == "__main__":
 
     # student_agent = get_agent_for_user(current_user_id, current_role)
     
-    # student_agent.print_response("Add a student name Arham Mehta in delhi public school west")
+    # student_agent.print_response("Show overall school attendance today")
 
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
