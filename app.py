@@ -234,7 +234,7 @@ if __name__ == "__main__":
 
     # student_agent = get_agent_for_user(current_user_id, current_role)
     
-    # student_agent.print_response("Show overall school attendance today")
+    # student_agent.print_response("Academic Performance")
 
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

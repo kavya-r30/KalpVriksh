@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Calendar, Award, TrendingUp, DollarSign, MessageSquare, FileText } from "lucide-react"
 import {
   getStudentByUserId,
-  getStudentAttendance,
+  getStudentFullAttendance,
   getStudentMarks,
   getStudentFees,
   getUpcomingEvents,
@@ -38,7 +38,7 @@ export default function StudentDashboard() {
         if (!studentData) return
 
         const [attendanceData, marksData, feesData, eventsData, skillsData] = await Promise.all([
-          getStudentAttendance(studentData.id, 90),
+          getStudentFullAttendance(studentData.id),
           getStudentMarks(studentData.id),
           getStudentFees(studentData.id),
           getUpcomingEvents(studentData.id),
@@ -81,7 +81,9 @@ export default function StudentDashboard() {
       else if (record.status === "Late") stats.late++
     })
 
-    return Array.from(monthlyData.values()).slice(-6)
+    return Array.from(monthlyData.values())
+      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
+      .slice(-6)
   }, [attendance])
 
   const presentDays = attendance.filter((a) => a.status === "Present").length

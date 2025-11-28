@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getStudentAttendance } from "@/lib/api/supabase-queries"
+import { getStudentFullAttendance } from "@/lib/api/supabase-queries"
 import { Badge } from "@/components/ui/badge"
 import { Calendar } from "@/components/ui/calendar"
 import { format } from "date-fns"
@@ -23,11 +23,11 @@ export default function StudentAttendancePage() {
       try {
         const student = await getStudentByUserId(userId)
         if (student) {
-          const data = await getStudentAttendance(student.id, 90)
+          const data = await getStudentFullAttendance(student.id)
           setAttendance(data || [])
         }
       } catch (error) {
-        console.error("[v0] Error fetching attendance:", error)
+        console.error("Error fetching attendance:", error)
       } finally {
         setLoading(false)
       }

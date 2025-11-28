@@ -156,6 +156,17 @@ export async function getStudentAttendance(studentId: string, limit = 30) {
   return data
 }
 
+export async function getStudentFullAttendance(studentId: string) {
+  const { data, error } = await supabase
+    .from("attendance")
+    .select("*")
+    .eq("student_id", studentId)
+    .order("attendance_date", { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
 export async function getStudentMarks(studentId: string) {
   const { data, error } = await supabase
     .from("marks")
