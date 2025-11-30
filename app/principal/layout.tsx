@@ -12,6 +12,7 @@ import {
   FileText,
   DollarSign,
   Award,
+  ArrowRightLeft,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRole } from "@/contexts/role-context"
@@ -25,6 +26,7 @@ const navItems = [
   { title: "Exams", href: "/principal/exams", icon: ClipboardList },
   { title: "Fees", href: "/principal/fees", icon: DollarSign },
   { title: "Certificates", href: "/principal/certificates", icon: Award },
+  { title: "Transfers", href: "/principal/transfers", icon: ArrowRightLeft },
   { title: "Reports", href: "/principal/reports", icon: FileText },
 ]
 

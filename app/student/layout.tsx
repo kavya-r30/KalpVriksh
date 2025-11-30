@@ -5,7 +5,16 @@ import { useRole } from "@/contexts/role-context"
 import { useEffect, useState } from "react"
 import { getStudentByUserId } from "@/lib/api/supabase-queries"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { LayoutDashboard, Calendar, ClipboardList, DollarSign, Award, FileText, MessageSquare } from "lucide-react"
+import {
+  LayoutDashboard,
+  Calendar,
+  ClipboardList,
+  DollarSign,
+  Award,
+  FileText,
+  MessageSquare,
+  ArrowRightLeft,
+} from "lucide-react"
 
 const navItems = [
   { title: "Dashboard", href: "/student", icon: LayoutDashboard },
@@ -14,6 +23,7 @@ const navItems = [
   { title: "Fees", href: "/student/fees", icon: DollarSign },
   { title: "Skills & Achievements", href: "/student/skills", icon: Award },
   { title: "Certificates", href: "/student/certificates", icon: FileText },
+  { title: "Transfer", href: "/student/transfer", icon: ArrowRightLeft },
   { title: "Messages", href: "/student/messages", icon: MessageSquare },
 ]
 

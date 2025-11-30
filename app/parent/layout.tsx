@@ -2,7 +2,16 @@
 
 import type React from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { LayoutDashboard, Users, Calendar, TrendingUp, DollarSign, Award, MessageSquare } from "lucide-react"
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  TrendingUp,
+  DollarSign,
+  Award,
+  MessageSquare,
+  ArrowRightLeft,
+} from "lucide-react"
 import { useRole } from "@/contexts/role-context"
 import { useEffect, useState } from "react"
 import { getParentByUserId } from "@/lib/api/supabase-queries"
@@ -14,6 +23,7 @@ const navItems = [
   { title: "Academic Progress", href: "/parent/progress", icon: TrendingUp },
   { title: "Fee Payments", href: "/parent/fees", icon: DollarSign },
   { title: "Achievements", href: "/parent/achievements", icon: Award },
+  { title: "Transfer", href: "/parent/transfer", icon: ArrowRightLeft },
   { title: "Messages", href: "/parent/messages", icon: MessageSquare },
 ]
 

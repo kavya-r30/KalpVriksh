@@ -5,7 +5,17 @@ import { useEffect, useState } from "react"
 import { useRole } from "@/contexts/role-context"
 import { getSupabaseClient } from "@/lib/supabase"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { School, Users, GraduationCap, UserCircle, LayoutDashboard, Settings, FileText, Bell } from "lucide-react"
+import {
+  School,
+  Users,
+  GraduationCap,
+  UserCircle,
+  LayoutDashboard,
+  Settings,
+  FileText,
+  Bell,
+  ArrowRightLeft,
+} from "lucide-react"
 
 const navItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -13,6 +23,7 @@ const navItems = [
   { title: "Students", href: "/admin/students", icon: GraduationCap },
   { title: "Teachers", href: "/admin/teachers", icon: Users },
   { title: "Parents", href: "/admin/parents", icon: UserCircle },
+  { title: "Transfers", href: "/admin/transfers", icon: ArrowRightLeft },
   { title: "Reports", href: "/admin/reports", icon: FileText },
   { title: "Notifications", href: "/admin/notifications", icon: Bell },
   { title: "Settings", href: "/admin/settings", icon: Settings },
