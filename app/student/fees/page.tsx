@@ -6,16 +6,19 @@ import { Button } from "@/components/ui/button"
 import { getStudentFees, getFeePayments } from "@/lib/api/supabase-queries"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Download, CreditCard } from "lucide-react"
 import { format } from "date-fns"
 import { useRole } from "@/contexts/role-context"
 import { getStudentByUserId } from "@/lib/api/supabase-queries"
+import { FeeStructureView } from "@/components/fees/fee-structure-view"
 
 export default function StudentFeesPage() {
   const { userId } = useRole()
   const [fees, setFees] = useState<any[]>([])
   const [payments, setPayments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [schoolId, setSchoolId] = useState<string>("")
 
   useEffect(() => {
     async function fetchFees() {
@@ -24,6 +27,7 @@ export default function StudentFeesPage() {
       try {
         const student = await getStudentByUserId(userId)
         if (student) {
+          setSchoolId(student.school_id || "")
           const [feesData, paymentsData] = await Promise.all([getStudentFees(student.id), getFeePayments(student.id)])
           setFees(feesData || [])
           setPayments(paymentsData || [])
@@ -58,7 +62,14 @@ export default function StudentFeesPage() {
         <p className="text-muted-foreground mt-1">View and manage your fee payments</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <Tabs defaultValue="my-fees" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="my-fees">My Fees</TabsTrigger>
+          <TabsTrigger value="fee-structure">Fee Structure</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="my-fees" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Fees</CardTitle>
@@ -189,6 +200,19 @@ export default function StudentFeesPage() {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="fee-structure">
+          {schoolId && (
+            <FeeStructureView
+              schoolId={schoolId}
+              showClassFilter={false}
+              title="School Fee Structure"
+              description="View the complete fee structure for your school"
+            />
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

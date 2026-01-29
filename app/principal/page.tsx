@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress"
 import { useRole } from "@/contexts/role-context"
 import { Badge } from "@/components/ui/badge"
+import { HolidayCalendar } from "@/components/calendar/holiday-calendar"
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Bar } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
@@ -289,7 +290,7 @@ export default function PrincipalDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Card className="border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle>Upcoming Events</CardTitle>
@@ -318,6 +319,8 @@ export default function PrincipalDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <HolidayCalendar schoolId={stats.schoolId} className="border-border/50 shadow-sm" />
 
         <DataTable
           title="Recent Student Enrollments"

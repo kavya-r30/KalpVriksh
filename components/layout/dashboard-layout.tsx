@@ -30,7 +30,7 @@ export function DashboardLayout({ children, navItems, title, userInfo }: Dashboa
       <div className="flex-1 flex flex-col md:pl-24">
         <TopNavbar navItems={navItems} userInfo={userInfo} showMobileMenu={true} />
 
-        <main className="flex-1 container mx-auto px-4 -my-12 md:px-8 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <main className="flex-1 container mx-auto px-4 -mt-12 mb-12 md:px-8 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-1">
               <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

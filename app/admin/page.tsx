@@ -12,7 +12,7 @@ import {
   Activity,
   Clock,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
 } from "lucide-react"
 import { getAdminDashboardStats, getSchools, getSupabaseClient } from "@/lib/api/supabase-queries"
 import { Button } from "@/components/ui/button"
@@ -433,7 +433,7 @@ export default function AdminDashboard() {
         <Card className="border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-chart-3" />
+              <IndianRupee className="h-5 w-5 text-chart-3" />
               Fee Collection
             </CardTitle>
             <CardDescription>Percentage of paid fees by type</CardDescription>

@@ -804,3 +804,14 @@ export async function getPrincipalFeeStats(schoolId: string) {
     return { tuition: 0, exam: 0, library: 0 }
   }
 }
+
+export async function getSubjects(schoolId: string) {
+  const { data, error } = await supabase
+    .from("subjects")
+    .select("*")
+    .eq("school_id", schoolId)
+    .order("name", { ascending: true })
+
+  if (error) throw error
+  return data
+}

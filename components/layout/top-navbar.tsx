@@ -19,6 +19,7 @@ import type { LucideIcon } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
 import { AnnouncementsModal } from "@/components/common/announcements-modal"
+import { NotificationCenter } from "@/components/notifications"
 import Image from "next/image"
 
 interface NavItem {
@@ -67,7 +68,7 @@ export function TopNavbar({ navItems, userInfo, showMobileMenu = true }: TopNavb
             <Image src={'./ai.svg'} width={5} height={5} alt="AI" className="h-5 w-5" />
           </Button>
 
-          <AnnouncementsModal />
+          <NotificationCenter />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

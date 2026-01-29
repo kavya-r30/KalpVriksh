@@ -7,10 +7,13 @@ import {
   Users,
   Calendar,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Award,
   MessageSquare,
   ArrowRightLeft,
+  Bell,
+  FileText,
+  Clock,
 } from "lucide-react"
 import { useRole } from "@/contexts/role-context"
 import { useEffect, useState } from "react"
@@ -20,9 +23,12 @@ const navItems = [
   { title: "Dashboard", href: "/parent", icon: LayoutDashboard },
   { title: "My Children", href: "/parent/children", icon: Users },
   { title: "Attendance", href: "/parent/attendance", icon: Calendar },
+  { title: "Timetable", href: "/parent/timetable", icon: Clock },
   { title: "Academic Progress", href: "/parent/progress", icon: TrendingUp },
-  { title: "Fee Payments", href: "/parent/fees", icon: DollarSign },
+  { title: "Fee Payments", href: "/parent/fees", icon: IndianRupee },
+  { title: "Certificates", href: "/parent/certificates", icon: FileText },
   { title: "Achievements", href: "/parent/achievements", icon: Award },
+  { title: "Notifications", href: "/parent/notifications", icon: Bell },
   { title: "Transfer", href: "/parent/transfer", icon: ArrowRightLeft },
   { title: "Messages", href: "/parent/messages", icon: MessageSquare },
 ]

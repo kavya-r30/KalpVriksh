@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis, Line, LineChart } from "recharts"
 import { AnnouncementsModal } from "@/components/common/announcements-modal"
+import { HolidayCalendar } from "@/components/calendar/holiday-calendar"
 
 function TeacherMarksGraph({ data }: { data: any[] }) {
   if (data.length === 0) {
@@ -253,15 +254,19 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      <Card className="border-border/50 shadow-sm">
-        <CardHeader>
-          <CardTitle>Weekly Attendance Trends</CardTitle>
-          <CardDescription>Student attendance rate for the past 7 days</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TeacherAttendanceGraph data={attendanceData} />
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2 border-border/50 shadow-sm">
+          <CardHeader>
+            <CardTitle>Weekly Attendance Trends</CardTitle>
+            <CardDescription>Student attendance rate for the past 7 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TeacherAttendanceGraph data={attendanceData} />
+          </CardContent>
+        </Card>
+
+        <HolidayCalendar schoolId={stats.schoolId} className="border-border/50 shadow-sm" />
+      </div>
 
       <Card className="border-border/50 shadow-sm">
         <CardHeader>

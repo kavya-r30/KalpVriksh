@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Calendar, TrendingUp, DollarSign, Award, Bell } from "lucide-react"
+import { Users, Calendar, TrendingUp, IndianRupee, Award, Bell } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -15,12 +15,15 @@ import {
   getStudentMarks,
   getStudentFees,
 } from "@/lib/api/supabase-queries"
+import { getStudentTimetable, type TimetableEntry } from "@/lib/api/timetable-service"
+import { TimetableCompact } from "@/components/timetable-table"
 import { getSupabaseClient } from "@/lib/supabase"
 import Link from "next/link"
 import { useRole } from "@/contexts/role-context"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Line, LineChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts"
 import { ChartCard } from "@/components/dashboard/chart-card"
+import { HolidayCalendar } from "@/components/calendar/holiday-calendar"
 
 export default function ParentDashboard() {
   const { userId } = useRole()
@@ -28,6 +31,7 @@ export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
   const [childrenStats, setChildrenStats] = useState<any[]>([])
+  const [timetable, setTimetable] = useState<TimetableEntry[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -43,6 +47,11 @@ export default function ParentDashboard() {
 
         setParent(parentData)
         setChildren(childrenData || [])
+
+        if (childrenData && childrenData.length > 0) {
+          const timetableData = await getStudentTimetable(childrenData[0].id)
+          setTimetable(timetableData)
+        }
 
         const stats = await Promise.all(
           (childrenData || []).map(async (child: any) => {
@@ -89,7 +98,7 @@ export default function ParentDashboard() {
           `)
           .eq("user_id", userId)
           .order("created_at", { ascending: false })
-          .limit(5)
+          .limit(3)
 
         setNotifications(notifData || [])
       } catch (error) {
@@ -210,7 +219,7 @@ export default function ParentDashboard() {
         <StatCard
           title="Pending Fees"
           value={`₹${aggregateStats.pendingFees.toLocaleString()}`}
-          icon={DollarSign}
+          icon={IndianRupee}
           description="Total outstanding"
           variant="orange"
         />
@@ -275,11 +284,58 @@ export default function ParentDashboard() {
                 ))
               )}
             </div>
+
+            <div className="pt-6" />
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Children Performance Summary</CardTitle>
+                <CardDescription>Quick overview of academic progress</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {children.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">No performance data available</p>
+                ) : (
+                  children.map((child) => {
+                    const childStat = childrenStats.find((cs) => cs.childId === child.id) || {
+                      attendanceRate: 0,
+                      avgMarks: 0,
+                      pendingFees: 0,
+                    }
+                    return (
+                      <div key={child.id} className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">
+                            {child.first_name} - {child.current_class?.name}
+                          </span>
+                          <span className="text-sm text-muted-foreground">{childStat.avgMarks}%</span>
+                        </div>
+                        <Progress value={childStat.avgMarks} className="h-2" />
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Attendance: </span>
+                            <span className="font-medium">{childStat.attendanceRate}%</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Avg Score: </span>
+                            <span className="font-medium">{childStat.avgMarks}%</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Rank: </span>
+                            <span className="font-medium">#5</span>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </CardContent>
+            </Card>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -309,7 +365,7 @@ export default function ParentDashboard() {
                         }`}
                       >
                         {notif?.notification_type === "Fee" ? (
-                          <DollarSign className="h-5 w-5" />
+                          <IndianRupee className="h-5 w-5" />
                         ) : notif?.notification_type === "Exam" ? (
                           <Award className="h-5 w-5" />
                         ) : (
@@ -341,50 +397,16 @@ export default function ParentDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Children Performance Summary</CardTitle>
-            <CardDescription>Quick overview of academic progress</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {children.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No performance data available</p>
-            ) : (
-              children.map((child) => {
-                const childStat = childrenStats.find((cs) => cs.childId === child.id) || {
-                  attendanceRate: 0,
-                  avgMarks: 0,
-                  pendingFees: 0,
-                }
-                return (
-                  <div key={child.id} className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">
-                        {child.first_name} - {child.current_class?.name}
-                      </span>
-                      <span className="text-sm text-muted-foreground">{childStat.avgMarks}%</span>
-                    </div>
-                    <Progress value={childStat.avgMarks} className="h-2" />
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">Attendance: </span>
-                        <span className="font-medium">{childStat.attendanceRate}%</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Avg Score: </span>
-                        <span className="font-medium">{childStat.avgMarks}%</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Rank: </span>
-                        <span className="font-medium">#5</span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })
-            )}
-          </CardContent>
-        </Card>
+        {children.length > 0 && (
+          <HolidayCalendar schoolId={children[0].school_id} />
+        )}
+
+        {timetable.length > 0 && (
+          <TimetableCompact
+            entries={timetable}
+            title={`${children[0]?.first_name}'s Schedule Today`}
+          />
+        )}
       </div>
     </div>
   )

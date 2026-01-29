@@ -1,0 +1,5 @@
+export { ReportCardTemplate } from "./report-card-template"
+export { BonafideCertificateTemplate } from "./bonafide-certificate-template"
+export { CharacterCertificateTemplate } from "./character-certificate-template"
+export { LeavingCertificateTemplate } from "./leaving-certificate-template"
+export { CasteCertificateTemplate } from "./caste-certificate-template"

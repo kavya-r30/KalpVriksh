@@ -15,6 +15,9 @@ import {
   FileText,
   Bell,
   ArrowRightLeft,
+  Award,
+  IndianRupee,
+  Clock,
 } from "lucide-react"
 
 const navItems = [
@@ -24,7 +27,10 @@ const navItems = [
   { title: "Teachers", href: "/admin/teachers", icon: Users },
   { title: "Parents", href: "/admin/parents", icon: UserCircle },
   { title: "Transfers", href: "/admin/transfers", icon: ArrowRightLeft },
+  { title: "Fees", href: "/admin/fees", icon: IndianRupee },
+  { title: "Timetable", href: "/admin/timetable", icon: Clock },
   { title: "Reports", href: "/admin/reports", icon: FileText },
+  { title: "Certificates", href: "/admin/certificates", icon: Award },
   { title: "Notifications", href: "/admin/notifications", icon: Bell },
   { title: "Settings", href: "/admin/settings", icon: Settings },
 ]

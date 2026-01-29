@@ -51,10 +51,28 @@ export default function ChildrenPage() {
 
           const totalBalance = feeData?.reduce((sum, fee) => sum + (fee.balance_amount || 0), 0) || 0
 
+          // Fetch marks data to calculate average score (matching /progress calculation)
+          const { data: marksData } = await supabase
+            .from("marks")
+            .select(`
+              marks_obtained,
+              exam_schedule:exam_schedule(max_marks)
+            `)
+            .eq("student_id", child.id)
+
+          let averageScore = 0
+          if (marksData && marksData.length > 0) {
+            const totalMaxMarks = marksData.reduce((sum: number, m: any) => sum + (m.exam_schedule?.max_marks || 0), 0)
+            const totalObtainedMarks = marksData.reduce((sum: number, m: any) => sum + (m.marks_obtained || 0), 0)
+            averageScore = totalMaxMarks > 0 ? Math.round((totalObtainedMarks / totalMaxMarks) * 100) : 0
+          }
+
           stats[child.id] = {
             attendance: attendanceRate,
             skills: skillsCount || 0,
             feeBalance: totalBalance,
+            averageScore: averageScore,
+            totalExams: marksData?.length || 0,
           }
         }
 
@@ -154,7 +172,9 @@ export default function ChildrenPage() {
                           <TrendingUp className="h-4 w-4 text-muted-foreground" />
                           <span className="text-muted-foreground">Average Score</span>
                         </div>
-                        <span className="font-semibold text-primary">85%</span>
+                        <span className={`font-semibold ${stats.averageScore >= 75 ? "text-green-600" : stats.averageScore >= 50 ? "text-primary" : "text-orange-600"}`}>
+                          {stats.averageScore || 0}%
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm">

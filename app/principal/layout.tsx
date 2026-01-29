@@ -10,9 +10,11 @@ import {
   Calendar,
   ClipboardList,
   FileText,
-  DollarSign,
+  IndianRupee,
   Award,
   ArrowRightLeft,
+  Bell,
+  Clock,
 } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRole } from "@/contexts/role-context"
@@ -22,10 +24,12 @@ const navItems = [
   { title: "Dashboard", href: "/principal", icon: LayoutDashboard },
   { title: "Students", href: "/principal/students", icon: GraduationCap },
   { title: "Teachers", href: "/principal/teachers", icon: Users },
+  { title: "Timetable", href: "/principal/timetable", icon: Clock },
   { title: "Attendance", href: "/principal/attendance", icon: Calendar },
   { title: "Exams", href: "/principal/exams", icon: ClipboardList },
-  { title: "Fees", href: "/principal/fees", icon: DollarSign },
+  { title: "Fees", href: "/principal/fees", icon: IndianRupee },
   { title: "Certificates", href: "/principal/certificates", icon: Award },
+  { title: "Notifications", href: "/principal/notifications", icon: Bell },
   { title: "Transfers", href: "/principal/transfers", icon: ArrowRightLeft },
   { title: "Reports", href: "/principal/reports", icon: FileText },
 ]

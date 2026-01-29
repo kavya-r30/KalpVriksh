@@ -207,7 +207,9 @@
     "teacher_remarks": "text",
     "pdf_url": "text",
     "created_at": "timestamp",
-    "updated_at": "timestamp"
+    "updated_at": "timestamp",
+    "pdf_blob": "bytea",
+    "blob_mime_type": "varchar(50)"
   },
   "assignments": {
     "id": "uuid",
@@ -282,7 +284,9 @@
     "pdf_url": "text",
     "verification_code": "varchar(50)",
     "created_at": "timestamp",
-    "updated_at": "timestamp"
+    "updated_at": "timestamp",
+    "pdf_blob": "bytea",
+    "blob_mime_type": "varchar(50)"
   },
   "fee_payments": {
     "id": "uuid",
@@ -305,5 +309,62 @@
     "is_read": "boolean",
     "read_at": "timestamp",
     "created_at": "timestamp"
+  },
+  "timetable": {
+    "id": "uuid",
+    "school_id": "uuid",
+    "class_id": "uuid",
+    "section_id": "uuid",
+    "subject_id": "uuid",
+    "teacher_id": "uuid",
+    "day_of_week": "integer",
+    "start_time": "time",
+    "end_time": "time",
+    "room_number": "varchar(20)",
+    "academic_year": "varchar(20)",
+    "is_active": "boolean",
+    "created_at": "timestamp",
+    "updated_at": "timestamp"
+  },
+  "certificate_requests": {
+    "id": "uuid",
+    "student_id": "uuid",
+    "certificate_type": "varchar(50)",
+    "purpose": "text",
+    "requested_by": "uuid",
+    "status": "varchar(20)",
+    "remarks": "text",
+    "processed_by": "uuid",
+    "processed_at": "timestamp",
+    "created_at": "timestamp",
+    "updated_at": "timestamp"
+  },
+  "holidays": {
+    "id": "uuid",
+    "school_id": "uuid",
+    "name": "varchar(255)",
+    "description": "text",
+    "holiday_date": "date",
+    "holiday_type": "varchar(50)",
+    "is_recurring": "boolean",
+    "recurring_month": "integer",
+    "recurring_day": "integer",
+    "academic_year": "varchar(20)",
+    "created_by": "uuid",
+    "created_at": "timestamp",
+    "updated_at": "timestamp"
+  },
+  "period_definitions": {
+    "id": "uuid",
+    "school_id": "uuid",
+    "period_number": "integer",
+    "period_name": "varchar(50)",
+    "start_time": "time",
+    "end_time": "time",
+    "is_break": "boolean",
+    "academic_year": "varchar(20)",
+    "is_active": "boolean",
+    "created_at": "timestamp",
+    "updated_at": "timestamp"
   }
 }

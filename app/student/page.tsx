@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { ChartCard } from "@/components/dashboard/chart-card"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Award, TrendingUp, DollarSign, MessageSquare, FileText } from "lucide-react"
+import { Calendar, Award, TrendingUp, IndianRupee, MessageSquare, FileText, Bell, AlertCircle } from "lucide-react"
 import {
   getStudentByUserId,
   getStudentFullAttendance,
@@ -18,6 +18,11 @@ import { Badge } from "@/components/ui/badge"
 import { useRole } from "@/contexts/role-context"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getUserNotifications, type NotificationRecipient } from "@/lib/api/notification-service"
+import { HolidayCalendar } from "@/components/calendar/holiday-calendar"
+import { TimetableCompact } from "@/components/timetable-table"
+import { getStudentTimetable, type TimetableEntry } from "@/lib/api/timetable-service"
+import { Clock } from "lucide-react"
 
 export default function StudentDashboard() {
   const { userId } = useRole()
@@ -27,6 +32,8 @@ export default function StudentDashboard() {
   const [fees, setFees] = useState<any[]>([])
   const [events, setEvents] = useState<any[]>([])
   const [skillsCount, setSkillsCount] = useState(0)
+  const [notifications, setNotifications] = useState<NotificationRecipient[]>([])
+  const [timetable, setTimetable] = useState<TimetableEntry[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -51,6 +58,14 @@ export default function StudentDashboard() {
         setFees(feesData || [])
         setEvents(eventsData || [])
         setSkillsCount(skillsData?.length || 0)
+
+        // Fetch notifications
+        const notificationsData = await getUserNotifications(userId, 5)
+        setNotifications(notificationsData)
+
+        // Fetch timetable
+        const timetableData = await getStudentTimetable(studentData.id)
+        setTimetable(timetableData)
       } catch (error) {
         console.error("[v0] Error fetching student dashboard data:", error)
       } finally {
@@ -62,19 +77,30 @@ export default function StudentDashboard() {
   }, [userId])
 
   const attendanceChartData = useMemo(() => {
-    const monthlyData = new Map()
+    const monthlyData = new Map<string, {
+      month: string
+      year: number
+      monthIndex: number
+      present: number
+      absent: number
+      late: number
+    }>()
 
     attendance.forEach((record) => {
-      const date = new Date(record.attendance_date)
-      const month = date.toLocaleString("default", { month: "short" })
+      const date = new Date(`${record.attendance_date}T00:00:00`)
+      const monthIndex = date.getMonth()
       const year = date.getFullYear()
-      const key = `${month} ${year}`
+      const month = date.toLocaleString("en-IN", { month: "short" })
+
+      const key = `${year}-${monthIndex}`
 
       if (!monthlyData.has(key)) {
-        monthlyData.set(key, { month, present: 0, absent: 0, late: 0 })
+        monthlyData.set(key, {
+          month, year, monthIndex, present: 0, absent: 0, late: 0,
+        })
       }
 
-      const stats = monthlyData.get(key)
+      const stats = monthlyData.get(key)!
 
       if (record.status === "Present") stats.present++
       else if (record.status === "Absent") stats.absent++
@@ -82,7 +108,7 @@ export default function StudentDashboard() {
     })
 
     return Array.from(monthlyData.values())
-      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
+      .sort((a, b) => a.year * 12 + a.monthIndex - (b.year * 12 + b.monthIndex))
       .slice(-6)
   }, [attendance])
 
@@ -121,7 +147,7 @@ export default function StudentDashboard() {
           className="hidden sm:flex bg-linear-to-r from-purple-300 to-purple-300/90 hover:from-primary/90 hover:to-blue-300"
         >
           <Link href="/student/fees">
-            <DollarSign className="mr-2 h-4 w-4" />
+            <IndianRupee className="mr-2 h-4 w-4" />
             Pay Fees
           </Link>
         </Button>
@@ -154,7 +180,7 @@ export default function StudentDashboard() {
         <StatCard
           title="Pending Fees"
           value={`₹${pendingFees.toLocaleString()}`}
-          icon={DollarSign}
+          icon={IndianRupee}
           description="Due this month"
           className={pendingFees > 0 ? "border-red-200 dark:border-red-900" : ""}
           variant="green"
@@ -234,7 +260,7 @@ export default function StudentDashboard() {
             <CardContent className="grid grid-cols-2 gap-3">
               <Link href="/student/fees" className="block">
                 <div className="flex flex-col items-center justify-center p-4 bg-green-50 dark:bg-green-950/20 border border-green-100 dark:border-green-900/50 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors text-center h-full">
-                  <DollarSign className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
+                  <IndianRupee className="h-6 w-6 text-green-600 dark:text-green-400 mb-2" />
                   <span className="text-sm font-medium text-green-900 dark:text-green-300">Pay Fees</span>
                 </div>
               </Link>
@@ -285,7 +311,68 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        <Card className="border-border/50 shadow-sm h-full">
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>Recent updates and alerts</CardDescription>
+              </div>
+              {notifications.filter((n) => !n.is_read).length > 0 && (
+                <Badge variant="destructive">{notifications.filter((n) => !n.is_read).length} new</Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {notifications.length > 0 ? (
+                notifications.map((item) => {
+                  const notif = item.notification
+                  if (!notif) return null
+                  return (
+                    <div
+                      key={item.id}
+                      className={`flex gap-3 p-3 rounded-lg border transition-colors ${!item.is_read ? "bg-primary/5 border-primary/20" : "hover:bg-muted/50"}`}
+                    >
+                      <div
+                        className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${
+                          notif.notification_type === "low_attendance" || notif.notification_type === "fee_overdue"
+                            ? "bg-red-100 text-red-600 dark:bg-red-900/30"
+                            : notif.notification_type === "fee_reminder"
+                              ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30"
+                              : notif.notification_type === "report_card" || notif.notification_type === "exam_result"
+                                ? "bg-blue-100 text-blue-600 dark:bg-blue-900/30"
+                                : "bg-purple-100 text-purple-600 dark:bg-purple-900/30"
+                        }`}
+                      >
+                        {notif.notification_type === "low_attendance" || notif.notification_type === "fee_overdue" ? (
+                          <AlertCircle className="h-4 w-4" />
+                        ) : notif.notification_type === "fee_reminder" ? (
+                          <IndianRupee className="h-4 w-4" />
+                        ) : notif.notification_type === "report_card" || notif.notification_type === "exam_result" ? (
+                          <FileText className="h-4 w-4" />
+                        ) : (
+                          <Bell className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm ${!item.is_read ? "font-semibold" : "font-medium"}`}>{notif.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{notif.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center text-sm text-muted-foreground py-8">No notifications</div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50 shadow-sm">
           <CardHeader>
             <CardTitle>Upcoming Events</CardTitle>
             <CardDescription>Important dates and announcements</CardDescription>
@@ -311,6 +398,70 @@ export default function StudentDashboard() {
                 <div className="text-center text-sm text-muted-foreground py-8">No upcoming events at this time</div>
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        <HolidayCalendar schoolId={student.school_id} className="border-border/50 shadow-sm" />
+
+        {/* Today's Timetable */}
+        <Card className="border-border/50 shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Today&apos;s Classes
+                </CardTitle>
+                <CardDescription>Your schedule for today</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/student/timetable">View Full</Link>
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              const today = new Date().getDay()
+              const todayClasses = timetable
+                .filter((t) => t.day_of_week === today)
+                .sort((a, b) => a.start_time.localeCompare(b.start_time))
+
+              if (todayClasses.length === 0) {
+                return (
+                  <div className="text-center text-sm text-muted-foreground py-8">
+                    No classes scheduled for today
+                  </div>
+                )
+              }
+
+              return (
+                <div className="space-y-2">
+                  {todayClasses.slice(0, 5).map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-sm">{entry.subject?.name}</p>
+                        {entry.teacher && (
+                          <p className="text-xs text-muted-foreground">
+                            {entry.teacher.first_name} {entry.teacher.last_name}
+                          </p>
+                        )}
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {entry.start_time.slice(0, 5)} - {entry.end_time.slice(0, 5)}
+                      </Badge>
+                    </div>
+                  ))}
+                  {todayClasses.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-2">
+                      +{todayClasses.length - 5} more classes
+                    </p>
+                  )}
+                </div>
+              )
+            })()}
           </CardContent>
         </Card>
       </div>

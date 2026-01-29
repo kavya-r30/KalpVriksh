@@ -9,20 +9,24 @@ import {
   LayoutDashboard,
   Calendar,
   ClipboardList,
-  DollarSign,
+  IndianRupee,
   Award,
   FileText,
   MessageSquare,
   ArrowRightLeft,
+  Bell,
+  Clock,
 } from "lucide-react"
 
 const navItems = [
   { title: "Dashboard", href: "/student", icon: LayoutDashboard },
   { title: "Attendance", href: "/student/attendance", icon: Calendar },
+  { title: "Timetable", href: "/student/timetable", icon: Clock },
   { title: "Marks & Results", href: "/student/marks", icon: ClipboardList },
-  { title: "Fees", href: "/student/fees", icon: DollarSign },
+  { title: "Fees", href: "/student/fees", icon: IndianRupee },
   { title: "Skills & Achievements", href: "/student/skills", icon: Award },
   { title: "Certificates", href: "/student/certificates", icon: FileText },
+  { title: "Notifications", href: "/student/notifications", icon: Bell },
   { title: "Transfer", href: "/student/transfer", icon: ArrowRightLeft },
   { title: "Messages", href: "/student/messages", icon: MessageSquare },
 ]
