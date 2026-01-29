@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { FeeStructureView } from "@/components/fees/fee-structure-view"
 import { useRole } from "@/contexts/role-context"
-import { getTeacherByUserId } from "@/lib/api/supabase-queries"
+import { getStaffByUserId } from "@/lib/api/supabase-queries"
 import { Loader2 } from "lucide-react"
 
 export default function TeacherFeesPage() {
@@ -16,7 +16,7 @@ export default function TeacherFeesPage() {
       if (!userId) return
 
       try {
-        const teacher = await getTeacherByUserId(userId)
+        const teacher = await getStaffByUserId(userId)
         if (teacher?.school_id) {
           setSchoolId(teacher.school_id)
         }

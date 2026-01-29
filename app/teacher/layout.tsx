@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { LayoutDashboard, Users, Calendar, ClipboardList, BookOpen, MessageSquare, Award, Bell, Clock } from "lucide-react"
+import { LayoutDashboard, Users, Calendar, ClipboardList, BookOpen, MessageSquare, Award, Bell, Clock, IndianRupee } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRole } from "@/contexts/role-context"
 import { getStaffByUserId } from "@/lib/api/supabase-queries"
@@ -16,6 +16,7 @@ const navItems = [
   { title: "Assignments", href: "/teacher/assignments", icon: BookOpen },
   { title: "Marks Entry", href: "/teacher/marks", icon: ClipboardList },
   { title: "Student Skills", href: "/teacher/skills", icon: Award },
+  { title: "Fees", href: "/teacher/fees", icon: IndianRupee },
   { title: "Announcements", href: "/teacher/announcements", icon: Bell },
   { title: "Messages", href: "/teacher/messages", icon: MessageSquare },
 ]

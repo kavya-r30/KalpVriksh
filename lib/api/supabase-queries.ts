@@ -397,15 +397,6 @@ export async function getUserByUserId(userId: string) {
   return data
 }
 
-// Teacher-specific queries
-export async function getTeacherByUserID(userId: string) {
-  const staff = await getStaffByUserId(userId)
-
-
-  if (error) throw error
-  return data
-}
-
 export async function getTeacherClasses(userId: string) {
   const staff = await getStaffByUserId(userId)
 
