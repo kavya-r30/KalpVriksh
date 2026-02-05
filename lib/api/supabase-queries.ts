@@ -806,3 +806,148 @@ export async function getSubjects(schoolId: string) {
   if (error) throw error
   return data
 }
+
+// Assignment Submissions
+export async function getAssignmentSubmissions(assignmentId: string) {
+  const { data, error } = await supabase
+    .from("assignment_submissions")
+    .select(`
+      *,
+      student:students(id, first_name, last_name, roll_number, admission_number)
+    `)
+    .eq("assignment_id", assignmentId)
+    .order("submitted_at", { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function getStudentSubmission(assignmentId: string, studentId: string) {
+  const { data, error } = await supabase
+    .from("assignment_submissions")
+    .select("*")
+    .eq("assignment_id", assignmentId)
+    .eq("student_id", studentId)
+    .single()
+
+  if (error && error.code !== "PGRST116") throw error
+  return data
+}
+
+export async function getStudentAssignments(studentId: string) {
+  const { data: student, error: studentError } = await supabase
+    .from("students")
+    .select("current_class_id")
+    .eq("id", studentId)
+    .single()
+
+  if (studentError) throw studentError
+
+  const { data, error } = await supabase
+    .from("assignments")
+    .select(`
+      *,
+      class:classes(name),
+      subject:subjects(name),
+      submission:assignment_submissions!left(
+        id,
+        status,
+        marks_obtained,
+        submitted_at,
+        feedback
+      )
+    `)
+    .eq("class_id", student.current_class_id)
+    .eq("assignment_submissions.student_id", studentId)
+    .order("due_date", { ascending: true })
+
+  if (error) throw error
+  return data
+}
+
+export async function getStudentAssignmentsByUserId(userId: string) {
+  const student = await getStudentByUserId(userId)
+  return getStudentAssignments(student.id)
+}
+
+// Meetings
+export async function getTeacherMeetings(userId: string) {
+  const staff = await getStaffByUserId(userId)
+
+  const { data, error } = await supabase
+    .from("meetings")
+    .select(`
+      *,
+      class:classes(name),
+      host:staff(first_name, last_name)
+    `)
+    .eq("host_id", staff.id)
+    .order("scheduled_at", { ascending: true })
+
+  if (error) throw error
+  return data
+}
+
+export async function getClassMeetings(classId: string) {
+  const { data, error } = await supabase
+    .from("meetings")
+    .select(`
+      *,
+      class:classes(name),
+      host:staff(first_name, last_name)
+    `)
+    .eq("class_id", classId)
+    .gte("scheduled_at", new Date().toISOString())
+    .order("scheduled_at", { ascending: true })
+
+  if (error) throw error
+  return data
+}
+
+export async function getStudentMeetings(userId: string) {
+  const student = await getStudentByUserId(userId)
+
+  const { data, error } = await supabase
+    .from("meetings")
+    .select(`
+      *,
+      class:classes(name),
+      host:staff(first_name, last_name)
+    `)
+    .eq("class_id", student.current_class_id)
+    .in("status", ["Scheduled", "In Progress"])
+    .order("scheduled_at", { ascending: true })
+
+  if (error) throw error
+  return data
+}
+
+export async function getMeetingById(meetingId: string) {
+  const { data, error } = await supabase
+    .from("meetings")
+    .select(`
+      *,
+      class:classes(name),
+      host:staff(first_name, last_name)
+    `)
+    .eq("id", meetingId)
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function getAssignmentById(assignmentId: string) {
+  const { data, error } = await supabase
+    .from("assignments")
+    .select(`
+      *,
+      class:classes(name),
+      subject:subjects(name)
+    `)
+    .eq("id", assignmentId)
+    .single()
+
+  if (error) throw error
+  return data
+}

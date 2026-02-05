@@ -9,3 +9,4 @@ agno
 google-generativeai
 google-genai
 groq
+mistralai

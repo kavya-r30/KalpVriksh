@@ -18,6 +18,7 @@ import {
   Award,
   IndianRupee,
   Clock,
+  FileDown,
 } from "lucide-react"
 
 const navItems = [
@@ -31,7 +32,8 @@ const navItems = [
   { title: "Timetable", href: "/admin/timetable", icon: Clock },
   { title: "Reports", href: "/admin/reports", icon: FileText },
   { title: "Certificates", href: "/admin/certificates", icon: Award },
-  { title: "Notifications", href: "/admin/notifications", icon: Bell },
+  // { title: "Notifications", href: "/admin/notifications", icon: Bell },
+  { title: "Ingestion", href: "/admin/ingestion", icon: FileDown },
   { title: "Settings", href: "/admin/settings", icon: Settings },
 ]
 

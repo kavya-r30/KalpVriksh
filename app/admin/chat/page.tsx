@@ -10,6 +10,7 @@ import { useRole } from "@/contexts/role-context"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Image from "next/image"
+import remarkBreaks from "remark-breaks"
 
 interface Message {
   role: "user" | "assistant"
@@ -153,7 +154,30 @@ export default function ChatbotPage() {
                   </div>
                   <div className="flex-1 pt-1">
                     <div className="text-sm leading-relaxed prose prose-neutral dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-li:my-0.5 prose-pre:bg-muted prose-pre:border prose-pre:border-border">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                        components={{
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto my-4">
+                              <table className="w-full border-collapse">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          th: ({ children }) => (
+                            <th className="border px-3 py-2 bg-muted font-semibold text-left">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="border px-3 py-2">
+                              {children}
+                            </td>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>  
                     </div>
                   </div>
                 </div>

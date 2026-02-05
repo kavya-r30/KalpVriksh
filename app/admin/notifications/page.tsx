@@ -17,7 +17,7 @@ import { toast } from "sonner"
 
 export default function NotificationsPage() {
   const { userId } = useRole()
-  const [recipientType, setRecipientType] = useState<string>("all")
+  const [recipientType, setRecipientType] = useState<string>("All")
   const [schoolId, setSchoolId] = useState<string>("")
   const [title, setTitle] = useState("")
   const [message, setMessage] = useState("")
@@ -62,9 +62,9 @@ export default function NotificationsPage() {
           school_id: recipientType === "school" ? schoolId : null,
           title: title.trim(),
           message: message.trim(),
-          notification_type: "admin_announcement",
-          created_by: userId,
-          recipient_type: recipientType,
+          notification_type: "Announcement",
+          sent_by: userId,
+          target_audience: recipientType,
         })
         .select()
 
@@ -125,11 +125,11 @@ export default function NotificationsPage() {
                   value={recipientType}
                   onChange={setRecipientType}
                   options={[
-                    { label: "All Users", value: "all" },
-                    { label: "All Students", value: "students" },
-                    { label: "All Teachers", value: "teachers" },
-                    { label: "All Parents", value: "parents" },
-                    { label: "Specific School", value: "school" },
+                    { label: "All Users", value: "All" },
+                    { label: "All Students", value: "Students" },
+                    { label: "All Teachers", value: "Teachers" },
+                    { label: "All Parents", value: "Parents" },
+                    { label: "Specific School", value: "Staff" },
                   ]}
                 />
               </div>

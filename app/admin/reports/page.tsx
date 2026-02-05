@@ -26,13 +26,13 @@ import {
   getStaffSummary,
   getStudentEnrollmentSummary,
   type AttendanceReportData,
-  type ExamResultsSummary,
   type FeeCollectionSummary,
   type PendingFeeStudent,
   type StaffSummary,
   type StudentEnrollmentSummary,
 } from "@/lib/api/reports-service"
 import { toast } from "sonner"
+import { createPrerenderSearchParamsForClientPage } from "next/dist/server/request/search-params"
 
 export default function AdminReportsPage() {
   const [schools, setSchools] = useState<any[]>([])
@@ -58,9 +58,9 @@ export default function AdminReportsPage() {
 
   // Report data states
   const [dailyAttendance, setDailyAttendance] = useState<AttendanceReportData | null>(null)
-  const [monthlyAttendance, setMonthlyAttendance] = useState<any>(null)
+  const [monthlyAttendance, setMonthlyAttendance] = useState<AttendanceReportData[]>([])
   const [attendanceDefaulters, setAttendanceDefaulters] = useState<any[]>([])
-  const [examResults, setExamResults] = useState<ExamResultsSummary | null>(null)
+  const [examResults, setExamResults] = useState<any | null>(null)
   const [topPerformers, setTopPerformers] = useState<any[]>([])
   const [feeCollection, setFeeCollection] = useState<FeeCollectionSummary | null>(null)
   const [pendingFees, setPendingFees] = useState<PendingFeeStudent[]>([])
@@ -335,6 +335,8 @@ export default function AdminReportsPage() {
     )
   }
 
+  console.log(monthlyAttendance)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -387,7 +389,7 @@ export default function AdminReportsPage() {
                 <CardContent>
                   <div className="text-2xl font-bold">{dailyAttendance?.attendancePercentage || 0}%</div>
                   <p className="text-xs text-muted-foreground">
-                    {dailyAttendance?.presentCount || 0} / {dailyAttendance?.totalStudents || 0} present
+                    {dailyAttendance?.present || 0} / {dailyAttendance?.totalStudents || 0} present
                   </p>
                 </CardContent>
               </Card>
@@ -396,7 +398,11 @@ export default function AdminReportsPage() {
                   <CardTitle className="text-sm font-medium">Monthly Average</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{monthlyAttendance?.averageAttendance || 0}%</div>
+                  <div className="text-2xl font-bold">
+                    {monthlyAttendance.length > 0 
+                      ? Math.round(monthlyAttendance.reduce((sum, day) => sum + day.attendancePercentage, 0) / monthlyAttendance.length)
+                      : 0}%
+                  </div>
                   <p className="text-xs text-muted-foreground">This month</p>
                 </CardContent>
               </Card>
@@ -405,7 +411,7 @@ export default function AdminReportsPage() {
                   <CardTitle className="text-sm font-medium">Absent Today</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{dailyAttendance?.absentCount || 0}</div>
+                  <div className="text-2xl font-bold text-red-600">{dailyAttendance?.absent || 0}</div>
                   <p className="text-xs text-muted-foreground">Students absent</p>
                 </CardContent>
               </Card>
@@ -443,8 +449,8 @@ export default function AdminReportsPage() {
                             <p className="font-medium text-sm">{student.studentName}</p>
                             <p className="text-xs text-muted-foreground">{student.admissionNumber}</p>
                           </div>
-                          <Badge variant={student.attendancePercentage < 50 ? "destructive" : "outline"}>
-                            {student.attendancePercentage}%
+                          <Badge variant={student.percentage < 50 ? "destructive" : "outline"}>
+                            {student.percentage}%
                           </Badge>
                         </div>
                       ))}
@@ -459,17 +465,22 @@ export default function AdminReportsPage() {
                   <CardDescription>Daily attendance for this month</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {monthlyAttendance?.dailyBreakdown ? (
+                  {monthlyAttendance.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No data available</p>
+                  ) : (
                     <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                      {monthlyAttendance.dailyBreakdown.slice(0, 10).map((day: any) => (
+                      {monthlyAttendance.slice(-10).map((day) => (
                         <div key={day.date} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
-                          <span className="text-sm">{new Date(day.date).toLocaleDateString()}</span>
-                          <span className="font-medium">{day.percentage}%</span>
+                          <span className="text-sm">{new Date(day.date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={day.attendancePercentage >= 75 ? "default" : "destructive"}>
+                              {day.attendancePercentage}%
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">{day.present}/{day.totalStudents}</span>
+                          </div>
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">No data available</p>
                   )}
                 </CardContent>
               </Card>
@@ -694,11 +705,11 @@ export default function AdminReportsPage() {
                           <p className="text-xs text-muted-foreground">Total Staff</p>
                         </div>
                         <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 text-center">
-                          <p className="text-2xl font-bold">{staffSummary.teachingStaff}</p>
+                          <p className="text-2xl font-bold">{staffSummary.teachers}</p>
                           <p className="text-xs text-muted-foreground">Teaching</p>
                         </div>
                         <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-center">
-                          <p className="text-2xl font-bold">{staffSummary.nonTeachingStaff}</p>
+                          <p className="text-2xl font-bold">{staffSummary.totalStaff - staffSummary.teachers - staffSummary.adminStaff}</p>
                           <p className="text-xs text-muted-foreground">Non-Teaching</p>
                         </div>
                         <div className="p-4 rounded-lg bg-orange-50 dark:bg-orange-900/20 text-center">
@@ -729,11 +740,11 @@ export default function AdminReportsPage() {
                           <p className="text-xs text-muted-foreground">Total</p>
                         </div>
                         <div className="p-4 rounded-lg bg-pink-50 dark:bg-pink-900/20 text-center">
-                          <p className="text-2xl font-bold">{studentEnrollment.maleStudents}</p>
+                          <p className="text-2xl font-bold">{studentEnrollment.male}</p>
                           <p className="text-xs text-muted-foreground">Male</p>
                         </div>
                         <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-center">
-                          <p className="text-2xl font-bold">{studentEnrollment.femaleStudents}</p>
+                          <p className="text-2xl font-bold">{studentEnrollment.female}</p>
                           <p className="text-xs text-muted-foreground">Female</p>
                         </div>
                       </div>

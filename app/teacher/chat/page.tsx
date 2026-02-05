@@ -9,7 +9,9 @@ import { ArrowUp } from "lucide-react"
 import { useRole } from "@/contexts/role-context"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
 import Image from "next/image"
+import { getSupabaseClient } from "@/lib/supabase"
 
 interface Message {
   role: "user" | "assistant"
@@ -18,10 +20,12 @@ interface Message {
 
 export default function ChatbotPage() {
   const { role, userId } = useRole()
+  const [teacherId, setTeacherId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const supabase = getSupabaseClient()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -31,6 +35,22 @@ export default function ChatbotPage() {
     scrollToBottom()
   }, [messages])
 
+  useEffect(() => {
+    async function fetchStudentId(){
+      if (!userId) return
+      
+      try {
+        const { data, error } = await supabase.from("staff").select("id").eq("user_id", userId).single()
+        
+        if (error) throw error
+        
+        setTeacherId(data.id)
+      } catch (error) {
+        console.error("Error fetching student ID:", error)
+      }
+    }
+    fetchStudentId()
+  }, [userId])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
@@ -49,7 +69,7 @@ export default function ChatbotPage() {
         },
         body: JSON.stringify({
           message: userMessage,
-          user_id: userId,
+          user_id: teacherId,
           role: role,
         }),
       })
@@ -153,7 +173,30 @@ export default function ChatbotPage() {
                   </div>
                   <div className="flex-1 pt-1">
                     <div className="text-sm leading-relaxed prose prose-neutral dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-li:my-0.5 prose-pre:bg-muted prose-pre:border prose-pre:border-border">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                        components={{
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto my-4">
+                              <table className="w-full border-collapse">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          th: ({ children }) => (
+                            <th className="border px-3 py-2 bg-muted font-semibold text-left">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="border px-3 py-2">
+                              {children}
+                            </td>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>  
                     </div>
                   </div>
                 </div>

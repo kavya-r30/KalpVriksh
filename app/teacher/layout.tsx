@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { LayoutDashboard, Users, Calendar, ClipboardList, BookOpen, MessageSquare, Award, Bell, Clock, IndianRupee } from "lucide-react"
+import { LayoutDashboard, Users, Calendar, ClipboardList, BookOpen, MessageSquare, Award, Bell, Clock, IndianRupee, Video } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useRole } from "@/contexts/role-context"
 import { getStaffByUserId } from "@/lib/api/supabase-queries"
@@ -14,11 +14,12 @@ const navItems = [
   { title: "Timetable", href: "/teacher/timetable", icon: Clock },
   { title: "Attendance", href: "/teacher/attendance", icon: Calendar },
   { title: "Assignments", href: "/teacher/assignments", icon: BookOpen },
+  { title: "Meetings", href: "/teacher/meetings", icon: Video },
   { title: "Marks Entry", href: "/teacher/marks", icon: ClipboardList },
   { title: "Student Skills", href: "/teacher/skills", icon: Award },
   { title: "Fees", href: "/teacher/fees", icon: IndianRupee },
   { title: "Announcements", href: "/teacher/announcements", icon: Bell },
-  { title: "Messages", href: "/teacher/messages", icon: MessageSquare },
+  // { title: "Messages", href: "/teacher/messages", icon: MessageSquare },
 ]
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {

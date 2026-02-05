@@ -72,8 +72,11 @@ export async function getMonthlyAttendanceReport(
   month: number,
   classId?: string
 ): Promise<AttendanceReportData[]> {
-  const startDate = `${year}-${String(month).padStart(2, "0")}-01`
-  const endDate = `${year}-${String(month).padStart(2, "0")}-31`
+  const startDate = new Date(year, month - 1, 1)
+  const endDate = new Date(year, month, 0)
+
+  const start = startDate.toISOString().split("T")[0]
+  const end = endDate.toISOString().split("T")[0]
 
   const { data } = await supabase
     .from("attendance")
@@ -81,8 +84,8 @@ export async function getMonthlyAttendanceReport(
       *,
       student:students(id, school_id, current_class_id)
     `)
-    .gte("attendance_date", startDate)
-    .lte("attendance_date", endDate)
+    .gte("attendance_date", start)
+    .lte("attendance_date", end)
 
   // Group by date
   const dateMap = new Map<string, any[]>()

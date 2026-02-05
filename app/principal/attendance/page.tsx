@@ -94,7 +94,7 @@ export default function AttendancePage() {
         const trend = await Promise.all(trendPromises)
         setAttendanceTrend(trend)
       } catch (error) {
-        console.error("[v0] Error fetching attendance trend:", error)
+        console.error("Error fetching attendance trend:", error)
       }
     }
 
