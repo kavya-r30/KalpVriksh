@@ -110,10 +110,10 @@ export default function ChatbotPage() {
 
           <div className="flex flex-wrap gap-2 justify-center max-w-2xl mb-8">
             {[
-              "Show my child's attendance report",
-              "How is my child performing academically?",
-              "Do we have any pending fee dues?",
-              "What upcoming school events should I know about?"
+              "Do I have any pending fees?",
+              "Show me recent notifications",
+              "Show my children's attendance summary",
+              "How is my child performing in exams?",
             ].map((suggestion) => (
               <button
                 key={suggestion}

@@ -113,7 +113,7 @@ export default function ChatbotPage() {
               "Show my attendance summary",
               "How am I performing in my exams?",
               "Do I have any pending fees?",
-              "How am I doing?",
+              "Show me recent notifications",
             ].map((suggestion) => (
               <button
                 key={suggestion}

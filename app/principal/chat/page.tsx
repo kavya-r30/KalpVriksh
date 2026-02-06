@@ -90,10 +90,10 @@ export default function ChatbotPage() {
 
           <div className="flex flex-wrap gap-2 justify-center max-w-2xl mb-8">
             {[
-              "Show overall school attendance today",
-              "Generate fee collection summary",
-              "List all the teachers with their subjects",
-              "Show performance summary of Class 10"
+              "Get Timetable for Monday",
+              "Give me Academic Report of my school",
+              "Give Class Analytics of Grade 10",
+              "Get Holidays for January",
             ].map((suggestion) => (
               <button
                 key={suggestion}
